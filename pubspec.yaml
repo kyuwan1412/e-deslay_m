@@ -1,0 +1,58 @@
+name: e_deslay
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.8
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  http: ^1.2.0
+  shared_preferences: ^2.2.2
+  flutter_svg: ^2.0.9
+  image_picker: ^1.1.2
+  http_parser: ^4.0.2
+  mime: ^1.0.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/logonganjuk.png
+    - assets/svg/wave.svg
+    - assets/svg/gdregiskanan.svg
+    - assets/svg/gdregiskiri.svg
+    - assets/images/logolpsandi.png
+    - assets/images/banner.png
+    - assets/images/searchlogo.png
+    - assets/images/logoorang.png
+    - assets/images/bgprofil.png
+    - assets/images/bannerkegiatan.png
+    - assets/images/logoedeslay.png
+    - assets/images/logo_edeslay.png
+
+  fonts:
+    - family: LemonShake
+      fonts:
+        - asset: assets/fonts/lemon_shake.ttf
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+
+  image_path: "assets/images/logo_edeslay.png"
+
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/images/logo_edeslay.png"
