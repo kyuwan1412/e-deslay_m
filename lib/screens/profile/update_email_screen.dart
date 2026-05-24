@@ -151,17 +151,20 @@ class _UpdateEmailScreenState
       result['user'];
 
       await SessionService.saveUser(
-        id: updatedUser['id'],
-        username:
-        updatedUser['username'],
-        email:
-        updatedUser['email'],
-        nama:
-        updatedUser['nama_lengkap'],
-        role:
-        updatedUser['role'],
-        foto:
-        updatedUser['foto_url'] ?? '',
+
+        id: user['id'],
+
+        username: user['username'],
+
+        email: newEmailController.text.trim(),
+
+        nama: user['nama'],
+
+        role: user['role'],
+
+        foto: user['foto'],
+
+        fcmToken: user['fcmToken'] ?? '',
       );
 
       if (!mounted) return;

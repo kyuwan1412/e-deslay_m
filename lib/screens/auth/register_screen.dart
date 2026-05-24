@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import '../../services/session_service.dart';
+import '../../services/firebase_service.dart';
+
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -22,6 +24,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool isLoading = false;
 
   void register() async {
+
     if (namaController.text.isEmpty ||
         usernameController.text.isEmpty ||
         emailController.text.isEmpty ||
@@ -29,68 +32,140 @@ class _RegisterScreenState extends State<RegisterScreen> {
         confirmController.text.isEmpty) {
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Semua field wajib diisi")),
+        const SnackBar(
+          content: Text(
+            "Semua field wajib diisi",
+          ),
+        ),
       );
+
       return;
     }
 
-    if (passwordController.text != confirmController.text) {
+    // ================= PASSWORD CHECK =================
+
+    if (passwordController.text !=
+        confirmController.text) {
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Konfirmasi password tidak sama")),
+        const SnackBar(
+          content: Text(
+            "Konfirmasi password tidak sama",
+          ),
+        ),
       );
+
       return;
     }
 
     setState(() => isLoading = true);
 
-    final regResult = await ApiService.register(
+    // ================= REGISTER =================
+
+    final regResult =
+    await ApiService.register(
+
       namaController.text,
       usernameController.text,
       emailController.text,
       passwordController.text,
     );
 
+    // ================= REGISTER GAGAL =================
+
     if (regResult['success'] != true) {
+
       setState(() => isLoading = false);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(regResult['message'] ?? "Register gagal")),
+        SnackBar(
+          content: Text(
+            regResult['message'] ??
+                "Register gagal",
+          ),
+        ),
       );
+
       return;
     }
 
-    final loginResult = await ApiService.login(
+    // ================= AUTO LOGIN =================
+
+    final loginResult =
+    await ApiService.login(
+
       usernameController.text,
       passwordController.text,
     );
 
-    setState(() => isLoading = false);
+    // ================= LOGIN GAGAL =================
 
-    if (loginResult['success'] == true) {
-      final user = loginResult['user'];
+    if (loginResult['success'] != true) {
 
-      await SessionService.saveUser(
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        nama: user.namaLengkap,
-        role: user.role,
-        foto: user.fotoUrl,
-      );
+      setState(() => isLoading = false);
 
-      if (!mounted) return;
-
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        '/dashboard',
-            (route) => false,
-      );
-
-    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loginResult['message'] ?? "Login gagal")),
+        SnackBar(
+          content: Text(
+            loginResult['message'] ??
+                "Login gagal",
+          ),
+        ),
       );
+
+      return;
     }
+
+    // ================= USER =================
+
+    final user =
+    loginResult['user'];
+
+    // ================= AMBIL FCM TOKEN =================
+
+    final fcmToken =
+    await FirebaseService.getToken();
+
+// ================= SAVE SESSION =================
+
+    await SessionService.saveUser(
+
+      id: user.id,
+
+      username: user.username,
+
+      email: user.email,
+
+      nama: user.namaLengkap,
+
+      role: user.role,
+
+      foto: user.fotoUrl,
+
+      fcmToken: fcmToken ?? '',
+    );
+
+// ================= SAVE FCM TOKEN =================
+
+    await ApiService.saveFcmToken(
+
+      userId: user.id,
+
+      fcmToken: fcmToken ?? '',
+    );
+
+    // ================= PINDAH DASHBOARD =================
+
+    if (!mounted) return;
+
+    Navigator.pushNamedAndRemoveUntil(
+
+      context,
+
+      '/dashboard',
+
+          (route) => false,
+    );
   }
 
   Widget label(String text) => Padding(

@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../services/session_service.dart';
 
 import '../../services/api_service.dart';
 import '../kegiatan/kegiatan_screen.dart';
+import '../surat/sktm/sktm_screen.dart';
+import '../surat/domisili/domisili_screen.dart';
+import '../surat/penghasilan/penghasilan_screen.dart';
+import '../surat/kelahiran/kelahiran_screen.dart';
+import '../surat/ktp/ktp_screen.dart';
+import '../surat/kematian/kematian_screen.dart';
+import '../surat/izin/izin_screen.dart';
+import '../surat/nikah/nikah_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-
-  // ================= MAIN NAVIGATION KEGIATAN =================
   final VoidCallback? onSeeAllKegiatan;
 
   const DashboardScreen({
@@ -22,19 +29,162 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState
     extends State<DashboardScreen> {
 
+  int userId = 0;
+
   List<Map<String, dynamic>>
   kegiatanTerbaru = [];
 
   bool isLoadingKegiatan = true;
 
+  final TextEditingController
+  searchController =
+  TextEditingController();
+
+  List<Map<String, dynamic>>
+  menuLayanan = [];
+
+  List<Map<String, dynamic>>
+  filteredMenu = [];
+
   @override
   void initState() {
     super.initState();
 
+    getUserSession();
     getKegiatanTerbaru();
+
+    initMenu();
   }
 
-  // ================= GET 2 KEGIATAN TERBARU =================
+  // ================= INIT MENU =================
+  void initMenu() {
+
+    menuLayanan = [
+
+      {
+        "title": "Domisili",
+        "image":
+        "assets/images/domisili.png",
+        "screen":
+            (context) =>
+            DomisiliScreen(
+              userId: userId,
+            ),
+      },
+
+      {
+        "title": "SKTM",
+        "image":
+        "assets/images/ikon_sktm.png",
+        "screen":
+            (context) =>
+            SKTMScreen(
+              userId: userId,
+            ),
+      },
+
+      {
+        "title": "Penghasilan",
+        "image":
+        "assets/images/penghasilan.png",
+        "screen":
+            (context) =>
+            PenghasilanScreen(
+              userId: userId,
+            ),
+      },
+
+      {
+        "title": "Kelahiran",
+        "image":
+        "assets/images/kelahiran.png",
+        "screen":
+            (context) =>
+            KelahiranScreen(
+              userId: userId,
+            ),
+      },
+
+      {
+        "title": "KTP",
+        "image":
+        "assets/images/ktp.png",
+        "screen":
+            (context) =>
+            KtpScreen(
+              userId: userId,
+            ),
+      },
+
+      {
+        "title": "Kematian",
+        "image":
+        "assets/images/kematian.png",
+        "screen":
+            (context) =>
+            KematianScreen(
+              userId: userId,
+            ),
+      },
+
+      {
+        "title": "Izin",
+        "image":
+        "assets/images/izin.png",
+        "screen":
+            (context) =>
+            IzinScreen(
+              userId: userId,
+            ),
+      },
+
+      {
+        "title": "Nikah",
+        "image":
+        "assets/images/nikah.png",
+        "screen":
+            (context) =>
+            NikahScreen(
+              userId: userId,
+            ),
+      },
+    ];
+
+    filteredMenu = menuLayanan;
+  }
+
+  // ================= SEARCH MENU =================
+  void searchMenu(String keyword) {
+
+    setState(() {
+
+      filteredMenu =
+          menuLayanan.where((menu) {
+
+            return menu['title']
+                .toString()
+                .toLowerCase()
+                .contains(
+              keyword.toLowerCase(),
+            );
+          }).toList();
+    });
+  }
+
+  Future<void> getUserSession() async {
+
+    final user =
+    await SessionService.getUser();
+
+    setState(() {
+
+      userId = user['id'];
+    });
+
+    print("LOGIN USER ID : $userId");
+  }
+
+  // ================= GET KEGIATAN =================
   Future<void>
   getKegiatanTerbaru() async {
 
@@ -70,12 +220,15 @@ class _DashboardScreenState
 
   @override
   Widget build(BuildContext context) {
+
     return AnnotatedRegion<
         SystemUiOverlayStyle>(
+
       value:
       const SystemUiOverlayStyle(
         statusBarIconBrightness:
         Brightness.light,
+
         statusBarColor:
         Colors.transparent,
       ),
@@ -87,6 +240,7 @@ class _DashboardScreenState
         body: SingleChildScrollView(
           child: Column(
             children: [
+
               _header(),
 
               Transform.translate(
@@ -95,6 +249,7 @@ class _DashboardScreenState
 
                 child: Column(
                   children: [
+
                     _layananCard(),
 
                     const SizedBox(
@@ -124,6 +279,7 @@ class _DashboardScreenState
 
   // ================= HEADER =================
   Widget _header() {
+
     return Container(
       width: double.infinity,
 
@@ -175,14 +331,19 @@ class _DashboardScreenState
                     ),
                   ),
 
-                  child:
-                  const TextField(
+                  child: TextField(
+                    controller:
+                    searchController,
+
+                    onChanged:
+                    searchMenu,
+
                     textAlignVertical:
                     TextAlignVertical
                         .center,
 
                     decoration:
-                    InputDecoration(
+                    const InputDecoration(
                       hintText:
                       "Cari layanan...",
 
@@ -293,6 +454,7 @@ class _DashboardScreenState
 
   // ================= LAYANAN =================
   Widget _layananCard() {
+
     return Container(
       margin:
       const EdgeInsets.symmetric(
@@ -342,13 +504,15 @@ class _DashboardScreenState
           ),
 
           const SizedBox(
-            height: 6,
+            height: 10,
           ),
 
-          GridView.count(
-            crossAxisCount: 4,
+          GridView.builder(
 
             shrinkWrap: true,
+
+            itemCount:
+            filteredMenu.length,
 
             physics:
             const NeverScrollableScrollPhysics(),
@@ -356,57 +520,95 @@ class _DashboardScreenState
             padding:
             EdgeInsets.zero,
 
-            mainAxisSpacing: 10,
+            gridDelegate:
+            const SliverGridDelegateWithFixedCrossAxisCount(
 
-            children: [
-              _menu("Domisili"),
-              _menu("Tidak Mampu"),
-              _menu("Penghasilan"),
-              _menu("Kelahiran"),
-              _menu("KTP"),
-              _menu("Kematian"),
-              _menu("Kegiatan"),
-              _menu("Nikah"),
-            ],
-          )
+              crossAxisCount: 4,
+
+              mainAxisSpacing: 2,
+
+              crossAxisSpacing: 8,
+
+              childAspectRatio: 0.95,
+            ),
+
+            itemBuilder:
+                (context, index) {
+
+              final menu =
+              filteredMenu[index];
+
+              return GestureDetector(
+
+                onTap: () {
+
+                  Navigator.push(
+                    context,
+
+                    MaterialPageRoute(
+                      builder:
+                          (context) =>
+                          menu['screen'](
+                            context,
+                          ),
+                    ),
+                  );
+                },
+
+                child: _menu(
+                  menu['title'],
+                  menu['image'],
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
   }
 
-  Widget _menu(String title) {
+  // ================= MENU =================
+  Widget _menu(
+      String title,
+      String image,
+      ) {
+
     return Column(
+      mainAxisSize: MainAxisSize.min,
+
       children: [
 
-        Container(
-          width: 55,
-          height: 55,
+        // ================= ICON =================
+        Image.asset(
+          image,
 
-          decoration:
-          const BoxDecoration(
-            color:
-            Color(0xFFE5E5E5),
+          width: 50,
+          height: 50,
 
-            shape:
-            BoxShape.circle,
-          ),
-
-          child: const Icon(
-            Icons.image,
-            color: Colors.blue,
-          ),
+          fit: BoxFit.contain,
         ),
 
         const SizedBox(
-          height: 6,
+          height: 4,
         ),
 
+        // ================= TITLE =================
         Text(
           title,
 
+          textAlign:
+          TextAlign.center,
+
+          maxLines: 1,
+
+          overflow:
+          TextOverflow.ellipsis,
+
           style:
           const TextStyle(
-            fontSize: 10,
+            fontSize: 12,
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
           ),
         )
       ],
@@ -415,6 +617,7 @@ class _DashboardScreenState
 
   // ================= TERBARU =================
   Widget _terbaruCard() {
+
     return Container(
       margin:
       const EdgeInsets.symmetric(
@@ -468,7 +671,6 @@ class _DashboardScreenState
 
                 onTap: () {
 
-                  // ================= JIKA ADA CALLBACK MAIN NAVIGATION =================
                   if (widget.onSeeAllKegiatan != null) {
 
                     widget.onSeeAllKegiatan!();
@@ -520,11 +722,11 @@ class _DashboardScreenState
           ),
 
           const SizedBox(
-            height: 5,
+            height: 4,
           ),
 
           const Text(
-            "Kabar kegiatan desa terbaru minggu ini",
+            "Kabar kegiatan desa terbaru akhir-akhir ini",
 
             style: TextStyle(
               fontSize: 11,
@@ -536,8 +738,8 @@ class _DashboardScreenState
             height: 12,
           ),
 
-          // ================= LOADING =================
           if (isLoadingKegiatan)
+
             const Center(
               child: Padding(
                 padding:
@@ -551,9 +753,9 @@ class _DashboardScreenState
               ),
             )
 
-          // ================= EMPTY =================
           else if (kegiatanTerbaru
               .isEmpty)
+
             const Padding(
               padding:
               EdgeInsets.all(12),
@@ -563,8 +765,8 @@ class _DashboardScreenState
               ),
             )
 
-          // ================= LIST =================
           else
+
             Column(
               children:
               kegiatanTerbaru.map(
@@ -579,7 +781,7 @@ class _DashboardScreenState
     );
   }
 
-  // ================= NEWS ITEM =================
+  // ================= NEWS =================
   Widget _news(
       Map<String, dynamic> item,
       ) {
@@ -687,8 +889,7 @@ class _DashboardScreenState
               children: [
 
                 Text(
-                  item['judul'] ??
-                      '-',
+                  item['judul'] ?? '-',
 
                   maxLines: 2,
 
@@ -709,8 +910,7 @@ class _DashboardScreenState
                 ),
 
                 Text(
-                  item['tanggal'] ??
-                      '-',
+                  item['tanggal'] ?? '-',
 
                   style:
                   const TextStyle(
@@ -728,6 +928,7 @@ class _DashboardScreenState
 
   // ================= BANNER =================
   Widget _banner() {
+
     return Container(
       margin:
       const EdgeInsets.symmetric(

@@ -5,6 +5,7 @@ import 'dashboard/dashboard_screen.dart';
 import 'profile/profile_screen.dart';
 import 'saran/saran_screen.dart';
 import 'kegiatan/kegiatan_screen.dart';
+import 'riwayat/riwayat_screen.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -57,11 +58,7 @@ class _MainNavigationState
       const KegiatanScreen(),
 
       // ================= RIWAYAT =================
-      const Center(
-        child: Text(
-          "Riwayat Surat",
-        ),
-      ),
+      const RiwayatScreen(),
 
       // ================= SARAN =================
       const SaranScreen(),
@@ -92,191 +89,201 @@ class _MainNavigationState
         child: _pages[_index],
       ),
 
-      // ================= BOTTOM NAVIGATION =================
-      bottomNavigationBar: Container(
-        height: 60,
+      // ================= FIX NAVBAR SEMUA HP =================
+      bottomNavigationBar: SafeArea(
 
-        padding:
-        const EdgeInsets.symmetric(
-          horizontal: 8,
+        top: false,
+
+        minimum:
+        const EdgeInsets.only(
+          bottom: 4,
         ),
 
-        decoration:
-        const BoxDecoration(
-          color: Colors.white,
+        child: Container(
+          height: 65,
 
-          boxShadow: [
-            BoxShadow(
-              color:
-              Colors.black12,
+          padding:
+          const EdgeInsets.symmetric(
+            horizontal: 8,
+          ),
 
-              blurRadius: 10,
+          decoration:
+          const BoxDecoration(
+            color: Colors.white,
 
-              offset:
-              Offset(0, -2),
-            )
-          ],
-        ),
+            boxShadow: [
+              BoxShadow(
+                color:
+                Colors.black12,
 
-        child: Row(
-          mainAxisAlignment:
-          MainAxisAlignment
-              .spaceAround,
+                blurRadius: 10,
 
-          children: List.generate(
-            _icons.length,
-                (i) {
+                offset:
+                Offset(0, -2),
+              )
+            ],
+          ),
 
-              final isActive =
-                  _index == i;
+          child: Row(
+            mainAxisAlignment:
+            MainAxisAlignment
+                .spaceAround,
 
-              return GestureDetector(
+            children: List.generate(
+              _icons.length,
+                  (i) {
 
-                onTap: () {
+                final isActive =
+                    _index == i;
 
-                  HapticFeedback
-                      .lightImpact();
+                return GestureDetector(
 
-                  setState(() {
+                  onTap: () {
 
-                    // ================= SIMPAN PAGE SEBELUM PROFILE =================
-                    if (i == 4 &&
-                        _index != 4) {
+                    HapticFeedback
+                        .lightImpact();
 
-                      _lastIndexBeforeProfile =
-                          _index;
-                    }
+                    setState(() {
 
-                    _index = i;
-                  });
-                },
+                      // ================= SIMPAN PAGE SEBELUM PROFILE =================
+                      if (i == 4 &&
+                          _index != 4) {
 
-                child: SizedBox(
-                  width: 60,
+                        _lastIndexBeforeProfile =
+                            _index;
+                      }
 
-                  child: Column(
-                    mainAxisAlignment:
-                    MainAxisAlignment
-                        .center,
+                      _index = i;
+                    });
+                  },
 
-                    children: [
+                  child: SizedBox(
+                    width: 60,
 
-                      AnimatedContainer(
-                        duration:
-                        const Duration(
-                          milliseconds:
-                          250,
-                        ),
+                    child: Column(
+                      mainAxisAlignment:
+                      MainAxisAlignment
+                          .center,
 
-                        transform:
-                        Matrix4.translationValues(
-                          0,
-                          isActive
-                              ? -4
-                              : 0,
-                          0,
-                        ),
+                      children: [
 
-                        child:
-                        AnimatedScale(
+                        AnimatedContainer(
                           duration:
                           const Duration(
                             milliseconds:
                             250,
                           ),
 
-                          scale:
-                          isActive
-                              ? 1.2
-                              : 1.0,
-
-                          child: Icon(
-                            _icons[i],
-
-                            size: 24,
-
-                            color:
+                          transform:
+                          Matrix4.translationValues(
+                            0,
                             isActive
-                                ? const Color(
-                              0xFF2E6BE6,
-                            )
-                                : Colors.grey,
+                                ? -4
+                                : 0,
+                            0,
                           ),
-                        ),
-                      ),
 
-                      const SizedBox(
-                        height: 2,
-                      ),
+                          child:
+                          AnimatedScale(
+                            duration:
+                            const Duration(
+                              milliseconds:
+                              250,
+                            ),
 
-                      AnimatedOpacity(
-                        duration:
-                        const Duration(
-                          milliseconds:
-                          200,
-                        ),
+                            scale:
+                            isActive
+                                ? 1.2
+                                : 1.0,
 
-                        opacity:
-                        isActive
-                            ? 1
-                            : 0,
+                            child: Icon(
+                              _icons[i],
 
-                        child: Text(
-                          _labels[i],
+                              size: 24,
 
-                          style:
-                          const TextStyle(
-                            fontSize:
-                            10,
-
-                            fontWeight:
-                            FontWeight
-                                .w600,
-
-                            color:
-                            Color(
-                              0xFF2E6BE6,
+                              color:
+                              isActive
+                                  ? const Color(
+                                0xFF2E6BE6,
+                              )
+                                  : Colors.grey,
                             ),
                           ),
                         ),
-                      ),
 
-                      const SizedBox(
-                        height: 2,
-                      ),
-
-                      AnimatedContainer(
-                        duration:
-                        const Duration(
-                          milliseconds:
-                          250,
+                        const SizedBox(
+                          height: 2,
                         ),
 
-                        width:
-                        isActive
-                            ? 4
-                            : 0,
-
-                        height: 4,
-
-                        decoration:
-                        BoxDecoration(
-                          color:
-                          const Color(
-                            0xFF2E6BE6,
+                        AnimatedOpacity(
+                          duration:
+                          const Duration(
+                            milliseconds:
+                            200,
                           ),
 
-                          borderRadius:
-                          BorderRadius.circular(
-                            10,
+                          opacity:
+                          isActive
+                              ? 1
+                              : 0,
+
+                          child: Text(
+                            _labels[i],
+
+                            style:
+                            const TextStyle(
+                              fontSize:
+                              10,
+
+                              fontWeight:
+                              FontWeight
+                                  .w600,
+
+                              color:
+                              Color(
+                                0xFF2E6BE6,
+                              ),
+                            ),
                           ),
                         ),
-                      )
-                    ],
+
+                        const SizedBox(
+                          height: 2,
+                        ),
+
+                        AnimatedContainer(
+                          duration:
+                          const Duration(
+                            milliseconds:
+                            250,
+                          ),
+
+                          width:
+                          isActive
+                              ? 4
+                              : 0,
+
+                          height: 4,
+
+                          decoration:
+                          BoxDecoration(
+                            color:
+                            const Color(
+                              0xFF2E6BE6,
+                            ),
+
+                            borderRadius:
+                            BorderRadius.circular(
+                              10,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),

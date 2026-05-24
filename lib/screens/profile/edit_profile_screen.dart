@@ -174,64 +174,111 @@ class _EditProfileScreenState
   // ================= UPDATE PROFILE =================
   Future<void> updateProfile() async {
 
-    setState(() {
-      isLoading = true;
-    });
+    try {
 
-    final result =
-    await ApiService.updateProfile(
-      id: userId,
-      namaLengkap:
-      namaController.text.trim(),
-      username:
-      usernameController.text.trim(),
-      foto: imageFile,
-    );
+      setState(() {
+        isLoading = true;
+      });
 
-    setState(() {
-      isLoading = false;
-    });
+      final result =
+      await ApiService.updateProfile(
 
-    if (result['success'] == true) {
+        id: userId,
 
-      final user = result['user'];
+        namaLengkap:
+        namaController.text.trim(),
 
-      // 🔥 UPDATE SESSION
-      await SessionService.saveUser(
-        id: user['id'],
-        username: user['username'],
-        email: user['email'],
-        nama: user['nama_lengkap'],
-        role: user['role'],
-        foto: user['foto_url'] ?? '',
+        username:
+        usernameController.text.trim(),
+
+        foto: imageFile,
       );
 
-      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+      });
 
-      // 🔥 NOTIF
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Profil berhasil diperbarui",
+      if (result['success'] == true) {
+
+        final user =
+        result['user'];
+
+        final oldSession =
+        await SessionService.getUser();
+
+        // ================= UPDATE SESSION =================
+
+        await SessionService.saveUser(
+
+          id: user['id'],
+
+          username: user['username'],
+
+          email: user['email'],
+
+          nama: user['nama_lengkap'],
+
+          role: user['role'],
+
+          foto: user['foto_url'],
+
+          fcmToken:
+          oldSession['fcmToken'] ?? '',
+        );
+
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
+
+          const SnackBar(
+
+            content: Text(
+              "Profil berhasil diperbarui",
+            ),
+
+            backgroundColor:
+            Colors.green,
           ),
-          backgroundColor: Colors.green,
-        ),
-      );
+        );
 
-      // 🔥 KEMBALI + REFRESH
-      Navigator.pop(context, true);
+        Navigator.pop(context, true);
 
-    } else {
+      } else {
 
-      if (!mounted) return;
+        if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
+
+          SnackBar(
+
+            content: Text(
+              result['message'] ??
+                  "Gagal update profil",
+            ),
+
+            backgroundColor:
+            Colors.red,
+          ),
+        );
+      }
+
+    } catch (e) {
+
+      setState(() {
+        isLoading = false;
+      });
+
+      print(e);
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+
         SnackBar(
           content: Text(
-            result['message'] ??
-                "Gagal update profil",
+            "ERROR: $e",
           ),
-          backgroundColor: Colors.red,
         ),
       );
     }
